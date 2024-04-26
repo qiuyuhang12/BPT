@@ -12,6 +12,7 @@
 //#include <map>//!
 #include "STLSrc/map.hpp"
 #include "STLSrc/vector.hpp"
+#include "LRU.hpp"
 #define ll long long
 
 
@@ -23,6 +24,18 @@ concept HasIsMin = requires(T k) {
     k.realVal;
     std::is_same_v<decltype(k.isMin), bool>;
 };
+
+//template<typename hasher>
+//static constexpr bool isMyHasher = requires() {
+//    hasher::isMine;
+//};
+
+struct hash{
+    size_t operator()(ll& x)const{
+        return x%TableCapacity;
+    }
+};
+
 template<HasIsMin Key,typename Value>
 class BPT{
 private:
@@ -96,6 +109,8 @@ public:
             }
         }
     };
+    LRU<ll,node,hash> lruNode;
+    LRU<ll,block,hash> lruBlock;
     enum Type{
         Last,Next
     };
@@ -143,11 +158,13 @@ public:
 
     void readNode(ll pos,node& _node){
         assert(pos>=cut&&pos<NodesFileEnd);//1e3
+        if (lruNode.get(pos, _node))return;
         bptNodes.seekg(pos, std::ios::beg);
         bptNodes.read(reinterpret_cast<char*>(&_node),sizeof(node));
     }
     void writeNodeToEnd(node& _node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
+        lruNode.insert(NodesFileEnd,_node);
         bptNodes.seekp(NodesFileEnd, std::ios::beg);
         NodesFileEnd+=sizeof(node);
         bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
@@ -155,16 +172,19 @@ public:
     }
     void writeNode(ll pos,node& _node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
+        lruNode.insert(pos,_node);
         bptNodes.seekp(pos, std::ios::beg);
         bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
     }
     void readBlock(ll pos,block& _block){
         assert(pos>-1&&pos<BlocksFileEnd);
+        if (lruBlock.get(pos, _block))return;
         bptBlocks.seekg(pos, std::ios::beg);
         bptBlocks.read(reinterpret_cast<char*>(&_block),sizeof(block));
     }
     void writeBlockToEnd(block& _block){//没有空间回收//没有++blockNum
         assert(BlocksFileEnd>-1);
+        lruBlock.insert(BlocksFileEnd,_block);
         bptBlocks.seekp(BlocksFileEnd, std::ios::beg);
         BlocksFileEnd+=sizeof(block);
         bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
@@ -172,6 +192,7 @@ public:
     }
     void writeBlock(ll pos,block& _block){//没有空间回收//没有++blockNum
         assert(BlocksFileEnd>-1);
+        lruBlock.insert(pos,_block);
         bptBlocks.seekp(pos, std::ios::beg);
         bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
     }
