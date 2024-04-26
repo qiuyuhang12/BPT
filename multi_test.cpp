@@ -113,8 +113,8 @@ int main() {
     clearFile();
     BPT<Int, int> bpt;
     multimap<int, int> mp;
-    int n = 2e2;
-    int m = 3e1;
+    int n = 1e3;
+    int m = 4;
     int srandd= time(nullptr);
     srand(srandd);
     cout<<"srand:"<<srandd<<endl;

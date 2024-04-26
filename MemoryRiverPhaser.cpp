@@ -86,7 +86,7 @@ void submit(){
     }
 }
 int main() {
-    clearFile();
+//    clearFile();
     submit();
     return 0;
 }
