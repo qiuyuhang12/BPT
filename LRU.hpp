@@ -8,6 +8,8 @@
 #include <cstddef>
 #include <iostream>
 #include <cassert>
+#include <fstream>
+#include <string>
 
 
 template<typename Hash, typename Key>
@@ -27,6 +29,7 @@ public:
 //    static const int TableCapacity = 9;
 //    static const int LinkCapacity = 7;
     size_t size = 0;
+    std::fstream file;
     class HashNode;
     struct DataNode {
         Key key;
@@ -59,6 +62,10 @@ public:
     DataNode *head = nullptr;
     DataNode *tail = nullptr;
 
+    void writeToFile(long long pos,Block &block){
+        file.seekp(pos,std::ios::beg);
+        file.write(reinterpret_cast<char *>(&block),sizeof(Block));
+    }
     void insertToTable(size_t pos,HashNode *hashNode){
         hashNode->next = hashTable[pos]->next;
         hashNode->prev = hashTable[pos];
@@ -99,6 +106,7 @@ public:
 //            assert(q->next != nullptr);//q是尾节点
 //        }
         separateFromTable(q);
+        writeToFile(q->key,p->block);
         delete p;
         delete q;
     }
@@ -146,6 +154,7 @@ public:
         delete head;
         head = nullptr;
         tail = nullptr;
+        file.close();
     }
 
     void insert(Key key, Block &block) {
@@ -173,6 +182,12 @@ public:
         }
         block = p->block;
         return true;
+    }
+    void enableFile(const std::string &filename){
+        file.open(filename,std::ios::in|std::ios::out|std::ios::binary);
+    }
+    void disableFile(){
+        file.close();
     }
 };
 

@@ -165,16 +165,16 @@ public:
     void writeNodeToEnd(node& _node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
         lruNode.insert(NodesFileEnd,_node);
-        bptNodes.seekp(NodesFileEnd, std::ios::beg);
+//        bptNodes.seekp(NodesFileEnd, std::ios::beg);
         NodesFileEnd+=sizeof(node);
-        bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
+//        bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
         ++nodeNum;
     }
     void writeNode(ll pos,node& _node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
         lruNode.insert(pos,_node);
-        bptNodes.seekp(pos, std::ios::beg);
-        bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
+//        bptNodes.seekp(pos, std::ios::beg);
+//        bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
     }
     void readBlock(ll pos,block& _block){
         assert(pos>-1&&pos<BlocksFileEnd);
@@ -185,16 +185,16 @@ public:
     void writeBlockToEnd(block& _block){//没有空间回收//没有++blockNum
         assert(BlocksFileEnd>-1);
         lruBlock.insert(BlocksFileEnd,_block);
-        bptBlocks.seekp(BlocksFileEnd, std::ios::beg);
+//        bptBlocks.seekp(BlocksFileEnd, std::ios::beg);
         BlocksFileEnd+=sizeof(block);
-        bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
+//        bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
         ++blockNum;
     }
     void writeBlock(ll pos,block& _block){//没有空间回收//没有++blockNum
         assert(BlocksFileEnd>-1);
         lruBlock.insert(pos,_block);
-        bptBlocks.seekp(pos, std::ios::beg);
-        bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
+//        bptBlocks.seekp(pos, std::ios::beg);
+//        bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
     }
 
     bool ShouldSplitNode(node& _node){
@@ -903,8 +903,12 @@ public:
         bptNodes.read(reinterpret_cast<char*>(&NodesFileEnd),sizeof(ll));
         bptNodes.read(reinterpret_cast<char*>(&BlocksFileEnd),sizeof(ll));
         bptNodes.read(reinterpret_cast<char*>(&size),sizeof(ll));
+        lruNode.enableFile("bptNodes");
+        lruBlock.enableFile("bptBlocks");
     }
     ~BPT(){
+        lruNode.disableFile();
+        lruBlock.disableFile();
         bptNodes.seekp(0);
         bptNodes.write(reinterpret_cast<char*>(&root),sizeof(ll));
         bptNodes.write(reinterpret_cast<char*>(&nodeNum),sizeof(ll));
