@@ -36,8 +36,8 @@ add_executable(multi_test
         STLSrc/vector.hpp
         LRU.hpp
 )
-#add_executable(submit
-#        submit.cpp
+add_executable(code
+        submit.cpp
 #        STLSrc/exceptions.hpp
 #        STLSrc/map.hpp
 #        STLSrc/my_print.hpp
@@ -45,7 +45,8 @@ add_executable(multi_test
 #        STLSrc/utility.hpp
 #        STLSrc/vector.hpp
 #        LRU.hpp
-#)
+#        STLSrc/MapAndVectorForSubmit.hpp
+)
 #add_executable(MemoryRiverPhaser
 #        MemoryRiverPhaser.cpp
 #        STLSrc/exceptions.hpp
@@ -67,13 +68,13 @@ add_executable(multi_test
 #        LRU.hpp
 #        LRUTest.cpp
 #)
-add_executable(code
-        MemoryRiverPhaser.cpp
-        STLSrc/exceptions.hpp
-        STLSrc/map.hpp
-        STLSrc/my_print.hpp
-        STLSrc/my_sort.hpp
-        STLSrc/utility.hpp
-        STLSrc/vector.hpp
-        LRU.hpp
-)
+#add_executable(code
+#        MemoryRiverPhaser.cpp
+#        STLSrc/exceptions.hpp
+#        STLSrc/map.hpp
+#        STLSrc/my_print.hpp
+#        STLSrc/my_sort.hpp
+#        STLSrc/utility.hpp
+#        STLSrc/vector.hpp
+#        LRU.hpp
+#)
