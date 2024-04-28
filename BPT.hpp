@@ -180,6 +180,7 @@ public:
         if (lruNode.get(pos, _node))return;
         bptNodes.seekg(pos, std::ios::beg);
         bptNodes.read(reinterpret_cast<char*>(&_node),sizeof(node));
+        lruNode.insert(pos,_node);
     }
     void writeNodeToEnd(node& _node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
@@ -200,6 +201,7 @@ public:
         if (lruBlock.get(pos, _block))return;
         bptBlocks.seekg(pos, std::ios::beg);
         bptBlocks.read(reinterpret_cast<char*>(&_block),sizeof(block));
+        lruBlock.insert(pos,_block);
     }
     void writeBlockToEnd(block& _block){//没有空间回收//没有++blockNum
         assert(BlocksFileEnd>-1);
