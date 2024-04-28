@@ -84,6 +84,28 @@ public:
                 child[i]=other.child[i];
             }
         }
+        node(node&& other) noexcept{
+            isRoot=other.isRoot;
+            isLeaf=other.isLeaf;
+            size=other.size;
+            parent=other.parent;
+            for (int i = 0; i <= size; ++i) {
+                key[i]=other.key[i];
+                child[i]=other.child[i];
+            }
+        }
+        node &operator = (const node& other){
+            if (this==&other)return *this;
+            isRoot=other.isRoot;
+            isLeaf=other.isLeaf;
+            size=other.size;
+            parent=other.parent;
+            for (int i = 0; i <= size; ++i) {
+                key[i]=other.key[i];
+                child[i]=other.child[i];
+            }
+            return *this;
+        }
         void print(){
             std::cout<<"isRoot:"<<isRoot<<' '<<"isLeaf:"<<isLeaf<<' '<<"size:"<<size<<' '<<"parent:"<<parent<<std::endl;
             for (int i = 0; i <= size; ++i) {
@@ -120,6 +142,26 @@ public:
             for (int i = 0; i < size; ++i) {
                 data[i]=other.data[i];
             }
+        }
+        block(block&& other) noexcept{
+            size=other.size;
+            last=other.last;
+            next=other.next;
+            parent=other.parent;
+            for (int i = 0; i < size; ++i) {
+                data[i]=other.data[i];
+            }
+        }
+        block & operator = (const block& other){
+            if (this==&other)return *this;
+            size=other.size;
+            last=other.last;
+            next=other.next;
+            parent=other.parent;
+            for (int i = 0; i < size; ++i) {
+                data[i]=other.data[i];
+            }
+            return *this;
         }
         void print(){
             std::cout<<"size:"<<size<<' '<<"last:"<<last<<' '<<"next:"<<next<<' '<<"parent:"<<parent<<std::endl;
@@ -247,7 +289,7 @@ public:
         return blockNum!=1&&_block.size==L/3;
     }
 
-    void adjustParentBlock(ll i,block &_block){
+    void adjustParentBlock(ll i,const block &_block){
         ll son=i;
         ll parent=BParent(i);
         node p;
@@ -283,7 +325,7 @@ public:
         newBlock.next=_block.next;
         newBlock.last=pos;
         _block.next=BlocksFileEnd;
-        writeBlock(pos,_block);
+//        writeBlock(pos,_block);
         block nextBlock;
         if (newBlock.next!=-1){
             readBlock(newBlock.next,nextBlock);
@@ -293,10 +335,11 @@ public:
         for (int i = 0; i < newBlock.size; ++i) {
             newBlock.data[i]=_block.data[_block.size+i];
         }
-        writeBlockToEnd(newBlock);
+//        writeBlockToEnd(newBlock);
         node parent;
         readNode(BParent(pos),parent);
         Key key=newBlock.data[0].key;
+        writeBlockToEnd(newBlock);
         bool flag=false;
         for (int i = 0; i <= parent.size; ++i) {
             if (pos==parent.child[i]){
@@ -312,6 +355,8 @@ public:
                 break;
             }
         }
+        writeBlock(pos,_block);
+
         assert(flag);
         if (ShouldSplitNode(parent)){
             splitNode(BParent(pos));
@@ -602,8 +647,9 @@ public:
                 ++_block.size;
                 --lastBlock.size;
                 writeBlock(_block.last,lastBlock);
-                writeBlock(pos,_block);
+//                writeBlock(pos,_block);
                 parent.key[pInSonArray]=_block.data[0].key;
+                writeBlock(pos,_block);
                 writeNode(BParent(pos),parent);
                 return true;
             }
@@ -616,9 +662,9 @@ public:
                     nextBlock.data[i]=nextBlock.data[i+1];
                 }
                 --nextBlock.size;
+                parent.key[pInSonArray+1]=nextBlock.data[0].key;
                 writeBlock(_block.next,nextBlock);
                 writeBlock(pos,_block);
-                parent.key[pInSonArray+1]=nextBlock.data[0].key;
                 writeNode(BParent(pos),parent);
                 return true;
             }
@@ -732,10 +778,10 @@ public:
                         _block.data[k]=_block.data[k+1];
                     }
                     --_block.size;
-                    writeBlock(i,_block);
                     --size;
                     if (j!=0)return i;
                     adjustParentBlock(i,_block);
+                    writeBlock(i,_block);
                     return i;
                 }
             }

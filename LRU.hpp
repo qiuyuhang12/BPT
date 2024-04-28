@@ -161,11 +161,11 @@ public:
     void insert(Key key, Block &block) {
         DataNode *p=findAndMoveToHead(key);
         if (p != nullptr) {
-            p->block = block;
+            p->block = std::move(block);
             return;
         }
         size_t pos = Hash()(key);
-        DataNode *dataNode = new DataNode(key, block);
+        DataNode *dataNode = new DataNode(key, std::move(block));
         HashNode *hashNode = new HashNode(key, dataNode);
         dataNode->hashNode = hashNode;
         insertToTable(pos,hashNode);
