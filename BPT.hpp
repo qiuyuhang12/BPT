@@ -74,6 +74,16 @@ public:
         node(bool _isRoot,bool _isLeaf,ll _size,ll _parent):isRoot(_isRoot),isLeaf(_isLeaf),size(_size),parent(_parent){
             key[0].isMin=true;
         }
+        node(const node& other){
+            isRoot=other.isRoot;
+            isLeaf=other.isLeaf;
+            size=other.size;
+            parent=other.parent;
+            for (int i = 0; i <= size; ++i) {
+                key[i]=other.key[i];
+                child[i]=other.child[i];
+            }
+        }
         void print(){
             std::cout<<"isRoot:"<<isRoot<<' '<<"isLeaf:"<<isLeaf<<' '<<"size:"<<size<<' '<<"parent:"<<parent<<std::endl;
             for (int i = 0; i <= size; ++i) {
@@ -102,6 +112,15 @@ public:
         Pair data[L]={};
         block()=default;
         block(ll _size,ll _last,ll _next,ll _parent):size(_size),last(_last),next(_next),parent(_parent){}
+        block(const block& other){
+            size=other.size;
+            last=other.last;
+            next=other.next;
+            parent=other.parent;
+            for (int i = 0; i < size; ++i) {
+                data[i]=other.data[i];
+            }
+        }
         void print(){
             std::cout<<"size:"<<size<<' '<<"last:"<<last<<' '<<"next:"<<next<<' '<<"parent:"<<parent<<std::endl;
             for (int i = 0; i < size; ++i) {
@@ -894,6 +913,8 @@ public:
             exit(1);
         }
         if (flag){
+            lruNode.enableFile("bptNodes");
+            lruBlock.enableFile("bptBlocks");
             return;
         }
         bptNodes.seekg(0);

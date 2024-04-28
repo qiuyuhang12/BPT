@@ -16,8 +16,8 @@ template<typename Hash, typename Key>
 concept Hashable = requires(Key key){
     { Hash()(key) }->std::same_as<size_t>;
 };
-static const int TableCapacity = 1e4+7;//!2
-static const int LinkCapacity = 1e3;//!2
+static const int TableCapacity = 1e2+7;//!2
+static const int LinkCapacity = 1e1;//!2
 template<typename Key, typename Block, Hashable<Key> Hash>
 class LRU {
 private:
@@ -65,6 +65,7 @@ public:
     void writeToFile(long long pos,Block &block){
         file.seekp(pos,std::ios::beg);
         file.write(reinterpret_cast<char *>(&block),sizeof(Block));
+        file.flush();
     }
     void insertToTable(size_t pos,HashNode *hashNode){
         hashNode->next = hashTable[pos]->next;
@@ -185,8 +186,16 @@ public:
     }
     void enableFile(const std::string &filename){
         file.open(filename,std::ios::in|std::ios::out|std::ios::binary);
+        if (!file.is_open()){
+            assert(0);
+        }
     }
     void disableFile(){
+        DataNode *dataNode=head->next;
+        while (dataNode!=tail){
+            writeToFile(dataNode->key,dataNode->block);
+            dataNode = dataNode->next;
+        }
         file.close();
     }
 };

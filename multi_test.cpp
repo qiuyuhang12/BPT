@@ -19,6 +19,8 @@ struct Int {
 
     Int(int val, bool isMin) : val(val), isMin(isMin) {}
 
+    Int(const Int &other) : val(other.val), isMin(other.isMin), realVal(other.realVal) {}
+
     bool operator<(const Int &other) const {
         return val < other.val;
     }
@@ -113,8 +115,8 @@ int main() {
     clearFile();
     BPT<Int, int> bpt;
     multimap<int, int> mp;
-    int n = 1e3;
-    int m = 4;
+    int n = 3e2;
+    int m = 2e1;
     int srandd= time(nullptr);
     srand(srandd);
     cout<<"srand:"<<srandd<<endl;

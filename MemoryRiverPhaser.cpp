@@ -23,6 +23,10 @@ struct String {
         strcpy(this->val, val.c_str());
     }
 
+    String(const String &other) : isMin(other.isMin), realVal(other.realVal) {
+        strcpy(val, other.val);
+    }
+
     String &operator=(const String &other) {
         if (val==other.val)return *this;
         strcpy(val, other.val);
@@ -90,4 +94,12 @@ int main() {
     submit();
     return 0;
 }
-
+//8
+//insert FlowersForAlgernon 1966
+//insert CppPrimer 2012
+//insert Dune 2021
+//insert CppPrimer 2001
+//find CppPrimer
+//find Java
+//delete Dune 2021
+//find Dune

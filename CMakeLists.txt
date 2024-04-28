@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 project(BPT)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined")
 set(CMAKE_CXX_STANDARD 20)
 #add_executable(multi_test
 #        BPT.hpp
@@ -67,3 +67,7 @@ add_executable(code
         STLSrc/vector.hpp
         LRU.hpp
 )
+#add_executable(testFile
+##        testFile.cpp
+#        testFile.cpp
+#)
