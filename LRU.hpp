@@ -33,15 +33,19 @@ public:
     class HashNode;
     struct DataNode {
         Key key;
-        Block block;
+        Block *block;
         HashNode *hashNode = nullptr;
         DataNode *prev = nullptr;
         DataNode *next = nullptr;
 
         DataNode() = default;
 
-        DataNode(Key key, Block block, DataNode *next = nullptr, DataNode *prev = nullptr) : key(key), block(block),
+        DataNode(Key key, Block *block, DataNode *next = nullptr, DataNode *prev = nullptr) : key(key), block(block),
                                                                                               next(next), prev(prev) {}
+        ~DataNode(){
+            delete block;
+            block = nullptr;
+        }
     };
 
     class HashNode {
@@ -62,10 +66,22 @@ public:
     DataNode *head = nullptr;
     DataNode *tail = nullptr;
 
-    void writeToFile(long long pos,Block &block){
+    void addABlock(Key key, Block *block){
+        size_t pos = Hash()(key);
+        DataNode *dataNode = new DataNode(key, block);
+        HashNode *hashNode = new HashNode(key, dataNode);
+        dataNode->hashNode = hashNode;
+        insertToTable(pos,hashNode);
+        insertToLink(dataNode);
+        size++;
+        if (size > LinkCapacity) {
+            removeTail();
+        }
+    }
+    void writeToFile(long long pos,Block *block){
         file.seekp(pos,std::ios::beg);
-        file.write(reinterpret_cast<char *>(&block),sizeof(Block));
-        file.flush();
+        file.write(reinterpret_cast<char *>(block),sizeof(Block));
+//        file.flush();
     }
     void insertToTable(size_t pos,HashNode *hashNode){
         hashNode->next = hashTable[pos]->next;
@@ -158,25 +174,26 @@ public:
         file.close();
     }
 
-    void insert(Key key, Block &block) {
+    void insert(Key key, Block *block) {
         DataNode *p=findAndMoveToHead(key);
         if (p != nullptr) {
             p->block = block;
             return;
         }
-        size_t pos = Hash()(key);
-        DataNode *dataNode = new DataNode(key, block);
-        HashNode *hashNode = new HashNode(key, dataNode);
-        dataNode->hashNode = hashNode;
-        insertToTable(pos,hashNode);
-        insertToLink(dataNode);
-        size++;
-        if (size > LinkCapacity) {
-            removeTail();
-        }
+        addABlock(key,block);
+//        size_t pos = Hash()(key);
+//        DataNode *dataNode = new DataNode(key, block);
+//        HashNode *hashNode = new HashNode(key, dataNode);
+//        dataNode->hashNode = hashNode;
+//        insertToTable(pos,hashNode);
+//        insertToLink(dataNode);
+//        size++;
+//        if (size > LinkCapacity) {
+//            removeTail();
+//        }
     }
 
-    bool get(Key key, Block &block) {
+    bool get(Key key, Block *block) {
         DataNode *p = findAndMoveToHead(key);
         if (p == nullptr) {
             return false;
@@ -197,6 +214,14 @@ public:
             dataNode = dataNode->next;
         }
         file.close();
+    }
+    Block* readFromFile(long long _pos){
+        Block *block = new Block();
+        file.seekg(_pos,std::ios::beg);
+        file.read(reinterpret_cast<char *>(block),sizeof(Block));
+        Key key=_pos;
+        addABlock(key,block);
+        return block;
     }
 };
 

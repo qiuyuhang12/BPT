@@ -84,6 +84,28 @@ public:
                 child[i]=other.child[i];
             }
         }
+        node(node&& other) noexcept{
+            isRoot=other.isRoot;
+            isLeaf=other.isLeaf;
+            size=other.size;
+            parent=other.parent;
+            for (int i = 0; i <= size; ++i) {
+                key[i]=other.key[i];
+                child[i]=other.child[i];
+            }
+        }
+        node &operator = (const node& other){
+            if (this==&other)return *this;
+            isRoot=other.isRoot;
+            isLeaf=other.isLeaf;
+            size=other.size;
+            parent=other.parent;
+            for (int i = 0; i <= size; ++i) {
+                key[i]=other.key[i];
+                child[i]=other.child[i];
+            }
+            return *this;
+        }
         void print(){
             std::cout<<"isRoot:"<<isRoot<<' '<<"isLeaf:"<<isLeaf<<' '<<"size:"<<size<<' '<<"parent:"<<parent<<std::endl;
             for (int i = 0; i <= size; ++i) {
@@ -120,6 +142,26 @@ public:
             for (int i = 0; i < size; ++i) {
                 data[i]=other.data[i];
             }
+        }
+        block(block&& other) noexcept{
+            size=other.size;
+            last=other.last;
+            next=other.next;
+            parent=other.parent;
+            for (int i = 0; i < size; ++i) {
+                data[i]=other.data[i];
+            }
+        }
+        block & operator = (const block& other){
+            if (this==&other)return *this;
+            size=other.size;
+            last=other.last;
+            next=other.next;
+            parent=other.parent;
+            for (int i = 0; i < size; ++i) {
+                data[i]=other.data[i];
+            }
+            return *this;
         }
         void print(){
             std::cout<<"size:"<<size<<' '<<"last:"<<last<<' '<<"next:"<<next<<' '<<"parent:"<<parent<<std::endl;
@@ -175,44 +217,64 @@ public:
         return a.value<b.value;
     }
 
+
+    //todo:read 外包read给缓存区，new/delete只在缓存区
     void readNode(ll pos,node& _node){
         assert(pos>=cut&&pos<NodesFileEnd);//1e3
-        if (lruNode.get(pos, _node))return;
-        bptNodes.seekg(pos, std::ios::beg);
-        bptNodes.read(reinterpret_cast<char*>(&_node),sizeof(node));
-        lruNode.insert(pos,_node);
+        node* nd;
+        if (lruNode.get(pos, nd)){
+            _node=*nd;
+            return;
+        }
+        nd=lruNode.readFromFile(pos);
+        _node=*nd;
+//        bptNodes.seekg(pos, std::ios::beg);
+//        bptNodes.read(reinterpret_cast<char*>(&_node),sizeof(node));
+//        lruNode.insert(pos,_node);
     }
-    void writeNodeToEnd(node& _node){//没有空间回收//没有++nodeNum
+    //todo:write 中insert传指针
+
+    void writeNodeToEnd(node& __node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
+        node *_node=new node(__node);
         lruNode.insert(NodesFileEnd,_node);
 //        bptNodes.seekp(NodesFileEnd, std::ios::beg);
         NodesFileEnd+=sizeof(node);
 //        bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
         ++nodeNum;
     }
-    void writeNode(ll pos,node& _node){//没有空间回收//没有++nodeNum
+    void writeNode(ll pos,node& __node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
+        node *_node=new node(__node);
         lruNode.insert(pos,_node);
 //        bptNodes.seekp(pos, std::ios::beg);
 //        bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
     }
     void readBlock(ll pos,block& _block){
         assert(pos>-1&&pos<BlocksFileEnd);
-        if (lruBlock.get(pos, _block))return;
-        bptBlocks.seekg(pos, std::ios::beg);
-        bptBlocks.read(reinterpret_cast<char*>(&_block),sizeof(block));
-        lruBlock.insert(pos,_block);
+        block* blk;
+        if (lruBlock.get(pos, blk)){
+            _block=*blk;
+            return;
+        }
+        blk=lruBlock.readFromFile(pos);
+        _block=*blk;
+//        bptBlocks.seekg(pos, std::ios::beg);
+//        bptBlocks.read(reinterpret_cast<char*>(&_block),sizeof(block));
+//        lruBlock.insert(pos,_block);
     }
-    void writeBlockToEnd(block& _block){//没有空间回收//没有++blockNum
+    void writeBlockToEnd(block& __block){//没有空间回收//没有++blockNum
         assert(BlocksFileEnd>-1);
+        block *_block=new block(__block);
         lruBlock.insert(BlocksFileEnd,_block);
 //        bptBlocks.seekp(BlocksFileEnd, std::ios::beg);
         BlocksFileEnd+=sizeof(block);
 //        bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
         ++blockNum;
     }
-    void writeBlock(ll pos,block& _block){//没有空间回收//没有++blockNum
+    void writeBlock(ll pos,block& __block){//没有空间回收//没有++blockNum
         assert(BlocksFileEnd>-1);
+        block *_block=new block(__block);
         lruBlock.insert(pos,_block);
 //        bptBlocks.seekp(pos, std::ios::beg);
 //        bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
@@ -247,7 +309,7 @@ public:
         return blockNum!=1&&_block.size==L/3;
     }
 
-    void adjustParentBlock(ll i,block &_block){
+    void adjustParentBlock(ll i,const block &_block){
         ll son=i;
         ll parent=BParent(i);
         node p;
@@ -297,6 +359,7 @@ public:
         node parent;
         readNode(BParent(pos),parent);
         Key key=newBlock.data[0].key;
+//        writeBlockToEnd(newBlock);
         bool flag=false;
         for (int i = 0; i <= parent.size; ++i) {
             if (pos==parent.child[i]){
@@ -312,6 +375,7 @@ public:
                 break;
             }
         }
+//        writeBlock(pos,_block);
         assert(flag);
         if (ShouldSplitNode(parent)){
             splitNode(BParent(pos));
@@ -604,6 +668,7 @@ public:
                 writeBlock(_block.last,lastBlock);
                 writeBlock(pos,_block);
                 parent.key[pInSonArray]=_block.data[0].key;
+//                writeBlock(pos,_block);
                 writeNode(BParent(pos),parent);
                 return true;
             }
@@ -616,6 +681,7 @@ public:
                     nextBlock.data[i]=nextBlock.data[i+1];
                 }
                 --nextBlock.size;
+//                parent.key[pInSonArray+1]=nextBlock.data[0].key;
                 writeBlock(_block.next,nextBlock);
                 writeBlock(pos,_block);
                 parent.key[pInSonArray+1]=nextBlock.data[0].key;
@@ -736,6 +802,7 @@ public:
                     --size;
                     if (j!=0)return i;
                     adjustParentBlock(i,_block);
+//                    writeBlock(i,_block);
                     return i;
                 }
             }

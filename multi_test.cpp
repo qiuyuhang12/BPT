@@ -115,7 +115,7 @@ int main() {
     clearFile();
     BPT<Int, int> bpt;
     multimap<int, int> mp;
-    int n = 3e2;
+    int n = 3e1;
     int m = 2e1;
     int srandd= time(nullptr);
     srand(srandd);
