@@ -33,15 +33,19 @@ public:
     class HashNode;
     struct DataNode {
         Key key;
-        Block block;
+        Block* block;
         HashNode *hashNode = nullptr;
         DataNode *prev = nullptr;
         DataNode *next = nullptr;
 
         DataNode() = default;
 
-        DataNode(Key key, Block block, DataNode *next = nullptr, DataNode *prev = nullptr) : key(key), block(block),
+        DataNode(Key key, Block block, DataNode *next = nullptr, DataNode *prev = nullptr) : key(key), block(new Block (block)),
                                                                                               next(next), prev(prev) {}
+
+                                                                                              ~DataNode(){
+                                                                                                  delete block;
+                                                                                              }
     };
 
     class HashNode {
@@ -62,9 +66,9 @@ public:
     DataNode *head = nullptr;
     DataNode *tail = nullptr;
 
-    void writeToFile(long long pos,Block &block){
+    void writeToFile(long long pos,Block *block){
         file.seekp(pos,std::ios::beg);
-        file.write(reinterpret_cast<char *>(&block),sizeof(Block));
+        file.write(reinterpret_cast<char *>(block),sizeof(Block));
         file.flush();
     }
     void insertToTable(size_t pos,HashNode *hashNode){
@@ -161,7 +165,7 @@ public:
     void insert(Key key, Block &block) {
         DataNode *p=findAndMoveToHead(key);
         if (p != nullptr) {
-            p->block = block;
+            *(p->block) = block;
             return;
         }
         size_t pos = Hash()(key);
@@ -181,7 +185,7 @@ public:
         if (p == nullptr) {
             return false;
         }
-        block = p->block;
+        block = *(p->block);
         return true;
     }
     void enableFile(const std::string &filename){
