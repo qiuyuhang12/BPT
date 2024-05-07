@@ -26,7 +26,7 @@ template<typename Hash, typename Key>
 concept Hashable = requires(Key key){
     { Hash()(key) }->std::same_as<size_t>;
 };
-static const int TableCapacity = 6e4+7;//!2
+static const int TableCapacity = 6e5+7;//!2
 static const int LinkCapacity = 6e4;//!2
 template<typename Key, typename Block, Hashable<Key> Hash>
 class LRU {
