@@ -29,7 +29,7 @@ struct hash{
 template<HasIsMin Key,typename Value>
 class BPT{
 private:
-public:
+//public:
     std::fstream bptNodes;
     std::fstream bptBlocks;
     ll root=1e3;
@@ -51,8 +51,6 @@ public:
     static const ll cut=1e3;
     static const int M=49;
     static const int L=50+1;
-//    static const int M=20+1;
-//    static const int L=20+1;
     struct node{
         bool isRoot=false;
         bool isLeaf=false;
@@ -193,16 +191,12 @@ public:
     void writeNodeToEnd(node* _node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
         lruNode.insert(NodesFileEnd,_node);
-//        bptNodes.seekp(NodesFileEnd, std::ios::beg);
         NodesFileEnd+=sizeof(node);
-//        bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
         ++nodeNum;
     }
     void writeNode(ll pos,node* _node){//没有空间回收//没有++nodeNum
         assert(NodesFileEnd>cut-1);
         lruNode.insert(pos,_node);
-//        bptNodes.seekp(pos, std::ios::beg);
-//        bptNodes.write(reinterpret_cast<char*>( &_node),sizeof(node));
     }
     void readBlock(ll pos,block*& _block){
         assert(pos>-1&&pos<BlocksFileEnd);
@@ -223,8 +217,6 @@ public:
     void writeBlock(ll pos,block* _block){//没有空间回收//没有++blockNum
         assert(BlocksFileEnd>-1);
         lruBlock.insert(pos,_block);
-//        bptBlocks.seekp(pos, std::ios::beg);
-//        bptBlocks.write(reinterpret_cast<char*>(&_block),sizeof(block));
     }
 
     bool ShouldSplitNode(node*& _node){

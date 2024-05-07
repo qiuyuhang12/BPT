@@ -31,13 +31,7 @@ static const int LinkCapacity = 4e3;//!2
 template<typename Key, typename Block, Hashable<Key> Hash>
 class LRU {
 private:
-public:
-//    static const int TableCapacity = 199;
-//    static const int TableCapacity = 1e6+3;//!1
-//    static const int TableCapacity = 9;
-//    static const int LinkCapacity = 1999;//!1
-//    static const int TableCapacity = 9;
-//    static const int LinkCapacity = 7;
+//public:
     size_t size = 0;
     std::fstream file;
     class HashNode;
@@ -113,13 +107,6 @@ public:
         DataNode *p = tail->prev;
         separateFromLink(p);
         HashNode *q = p->hashNode;
-//        size_t pos = Hash()(p->key);
-//        HashNode *q = hashTable[pos]->next;
-//        while (q->key != p->key) {
-//            q = q->next;
-//            assert(q != nullptr);
-//            assert(q->next != nullptr);//q是尾节点
-//        }
         separateFromTable(q);
         writeToFile(q->key,p->block);
         delete p;
