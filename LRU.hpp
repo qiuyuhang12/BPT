@@ -11,6 +11,16 @@
 #include <fstream>
 #include <string>
 
+template<class T>
+concept HasIsMin = requires(T k) {
+    k.isMin;
+    k.val;
+    k.realVal;
+    std::is_same_v<decltype(k.isMin), bool>;
+};
+
+template<HasIsMin Key,typename Value>
+class BPT;
 
 template<typename Hash, typename Key>
 concept Hashable = requires(Key key){
@@ -40,7 +50,7 @@ public:
 
         DataNode() = default;
 
-        DataNode(Key key, Block block, DataNode *next = nullptr, DataNode *prev = nullptr) : key(key), block(new Block (block)),
+        DataNode(Key key, Block *block, DataNode *next = nullptr, DataNode *prev = nullptr) : key(key), block(block),
                                                                                               next(next), prev(prev) {}
 
                                                                                               ~DataNode(){
@@ -162,10 +172,12 @@ public:
         file.close();
     }
 
-    void insert(Key key, Block &block) {
+    void insert(Key key, Block *block) {
         DataNode *p=findAndMoveToHead(key);
         if (p != nullptr) {
-            *(p->block) = block;
+            if (p->block==block)return;
+            delete p->block;
+            p->block = block;
             return;
         }
         size_t pos = Hash()(key);
@@ -180,12 +192,12 @@ public:
         }
     }
 
-    bool get(Key key, Block &block) {
+    bool get(Key key, Block *&block) {
         DataNode *p = findAndMoveToHead(key);
         if (p == nullptr) {
             return false;
         }
-        block = *(p->block);
+        block = p->block;
         return true;
     }
     void enableFile(const std::string &filename){

@@ -115,13 +115,17 @@ int main() {
     clearFile();
     BPT<Int, int> bpt;
     multimap<int, int> mp;
-    int n = 3e2;
+    int n = 2e2;
     int m = 2e1;
     int srandd= time(nullptr);
+//    srandd=1715073415;
+//1715073415
     srand(srandd);
     cout<<"srand:"<<srandd<<endl;
+//    1715071974
+//1715072915
     for (int i = 0; i < m * n; ++i) {
-        if (i%1000==0)cout<<i<<endl;
+        if (i%100==0)cout<<i<<endl;
 //        cout << i << endl;
         int k = rand() % n;
         int v = rand() % n;
@@ -137,7 +141,7 @@ int main() {
         bpt.insert(Int(k, v), v);
         mp.insert({k, v});
 //        continue;
-//        if (i<3547)continue;
+//        if (i<3187)continue;
 //        bpt.print();
 //        cout<<"k:"<<k<<endl;
 //        cout<<"v:"<<v<<endl;
@@ -150,7 +154,7 @@ int main() {
 
 
     for (int i = 0; i < m * n; ++i) {//5651
-        if (i%1000==0)cout<<i<<endl;
+        if (i%100==0)cout<<i<<endl;
 //        cout << i << endl;
         int k = rand() % n;
         int v;
